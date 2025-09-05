@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id         String    @id @default(uuid())
+  email      String    @uniqueimport express from 'express'
+import cors from 'cors'
+import { PrismaClient } from '@prisma/client'
+
+// 🔧 Setup
+const app = express()
+const prisma = new PrismaClient()
+app.use(cors())
+app.use(express.json())
+
+// 🔗 Routes
+import productRoutes from './src/routes/products'
+import orderRoutes from './src/routes/orders'
+import userRoutes from './src/routes/users'
+
+app.use('/api/products', productRoutes)
+app.use('/api/orders', orderRoutes)
+app.use('/api/users', userRoutes)
+
+// 🚀 Start server
+app.listen(5555, () => {
+  console.log('✅ Server running at http://localhost:5555')
+})
+
+  name       String
+  created_at DateTime  @default(now())
+
+  orders     orders[]  // 1:N relationship
+}
+
+model orders {
+  id          String       @id @default(uuid())
+  user_id     String
+  status      String
+  total_price Decimal
+  created_at  DateTime     @default(now())
+
+  user        users        @relation(fields: [user_id], references: [id])
+  order_items order_items[]
+}
+
+model products {
+  id          String    @id @default(uuid())
+  name        String
+  description String
+  price       Decimal
+  created_at  DateTime  @default(now())
+
+  order_items order_items[] // 1:N
+}
+
+model order_items {
+  id         String    @id @default(uuid())
+  order_id   String
+  product_id String
+  quantity   Int
+  created_at DateTime  @default(now())
+
+  order      orders    @relation(fields: [order_id], references: [id])
+  product    products  @relation(fields: [product_id], references: [id])
+}
