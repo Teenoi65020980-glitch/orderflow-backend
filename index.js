@@ -1,6 +1,5 @@
 import dotenv from 'dotenv'
 dotenv.config()
-console.log('🔐 DATABASE_URL:', process.env.DATABASE_URL)
 
 import express from 'express'
 import cors from 'cors'
@@ -8,9 +7,15 @@ import pkg from 'pg'
 const { Pool } = pkg
 
 const app = express()
-app.use(cors())
+
+// ✅ เปิด CORS ให้เฉพาะ frontend ของคุณ
+app.use(cors({
+  origin: ['https://orderflow-frontend.onrender.com', 'http://localhost:5173']
+}))
+
 app.use(express.json())
 
+// ✅ เชื่อมต่อฐานข้อมูล Supabase
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
@@ -98,7 +103,7 @@ app.post('/api/order-items', async (req, res) => {
 })
 
 // ✅ เริ่มรันเซิร์ฟเวอร์
-const PORT = 3000
+const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`)
   console.log('Routes loaded:')
